@@ -3,6 +3,7 @@ const { isAbsolute, resolve } = require('path');
 const path = require('path');
 
 const fileRoute = './Example';
+const fileBeingRead = './Example/file-1.md';
 
 function isPathValid(path, callback) {
   fs.access(path, (error) => {
@@ -75,6 +76,24 @@ getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
   }
 });
 
+function readMdFile (fileRoute, callback) {
+  fs.readFile(fileRoute, 'utf-8', (error, data) => {
+    if (error) {
+      return callback(new Error (`Error reading file ${fileRoute}: ${error.message}`));
+    }
+    return callback(null, data);
+  });
+}
+
+readMdFile(fileBeingRead, (error, data) => {
+if (error){
+  console.error(error.message);
+} else {
+  console.log('File content:');
+  console.log(data);
+}
+});
+
 //   if(fs.access(fileRoute).isDirectory()) {
 //     const files = fs.access(path);
 //     const mdFiles = files.filter(file => path.extname(file) === 'md');
@@ -96,5 +115,6 @@ module.exports = {
   isPathValid,
   makePathAbsolute,
   getRouteType,
-  getMdFilesInDirectory
+  getMdFilesInDirectory,
+  readMdFile
 }

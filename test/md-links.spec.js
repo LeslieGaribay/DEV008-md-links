@@ -1,4 +1,4 @@
-const { isPathValid } = require('../functions.js');
+const { isPathValid, getRouteType } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
 const fakeRelativeRoute = '..\\Example';
@@ -50,7 +50,7 @@ describe('test para makePathAbsolute', () => {
     jest.resetAllMocks();
     jest.resetModules();
   });
-  
+
   it('debería convertir una ruta relativa a una absoluta', async () => {
     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
     const mockIsAbsolute = jest.fn().mockImplementation(() => false);
@@ -69,13 +69,27 @@ describe('test para makePathAbsolute', () => {
   });
 });
 
-// const mdLinks = require('../');
+describe('test para getRouteType', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
 
-// describe('mdLinks', () => {
+  it('debería obtener el tipo de ruta', async () => {
+    const mockCallback = jest.fn();
+    getRouteType(fakeAbsoluteRoute, mockCallback);
+    await tick();
+    await tick();
+    await tick();
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+});
 
-//   it('should...', () => {
-//     console.log('FIX ME!');
-//   });
+// describe('test para getMdFilesInDirectory', () => {
 
 // });
