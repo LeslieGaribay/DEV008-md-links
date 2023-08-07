@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { isAbsolute, resolve } = require('path');
 const path = require('path');
+const readline = require('readline');
 
 const fileRoute = './Example';
 const fileBeingRead = './Example/file-1.md';
@@ -76,23 +77,54 @@ getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
   }
 });
 
-function readMdFile (fileRoute, callback) {
+function readMdFile(fileRoute, callback) {
   fs.readFile(fileRoute, 'utf-8', (error, data) => {
     if (error) {
-      return callback(new Error (`Error reading file ${fileRoute}: ${error.message}`));
+      return callback(new Error(`Error reading file ${fileRoute}: ${error.message}`));
     }
     return callback(null, data);
   });
 }
 
 readMdFile(fileBeingRead, (error, data) => {
-if (error){
-  console.error(error.message);
-} else {
-  console.log('File content:');
-  console.log(data);
-}
+  if (error) {
+    console.error(error.message);
+  } else {
+    console.log('File content:');
+    console.log(data);
+  }
 });
+
+function readMdFileLineByLine(fileRoute, lineCallback, errorCallback) {
+  const rl = readline.createInterface({
+    input: fs.createReadStream(fileRoute),
+    crlfDelay: Infinity
+  });
+
+  rl.on('line', line => {
+    lineCallback(line);
+  });
+
+  rl.on('close', () => {
+    errorCallback(null);
+  });
+
+  rl.on('error', error => {
+    errorCallback(new Error(`Error reading file ${fileRoute}: ${error.message}`));
+  });
+}
+
+readMdFileLineByLine(fileBeingRead, line => {
+  console.log('Line:', line);
+},
+  error => {
+    if (error) {
+      console.error(error.message);
+    } else {
+      console.log('File read completed.');
+    }
+  }
+);
 
 //   if(fs.access(fileRoute).isDirectory()) {
 //     const files = fs.access(path);
@@ -116,5 +148,6 @@ module.exports = {
   makePathAbsolute,
   getRouteType,
   getMdFilesInDirectory,
-  readMdFile
+  readMdFile,
+  readMdFileLineByLine
 }
