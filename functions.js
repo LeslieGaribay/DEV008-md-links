@@ -59,24 +59,7 @@ function readMdFile(fileRoute, callback) {
   });
 }
 
-function readMdFileLineByLine(fileRoute, lineCallback, errorCallback) {
-  const rl = readline.createInterface({
-    input: fs.createReadStream(fileRoute),
-    crlfDelay: Infinity
-  });
 
-  rl.on('line', line => {
-    lineCallback(line);
-  });
-
-  rl.on('close', () => {
-    errorCallback(null);
-  });
-
-  rl.on('error', error => {
-    errorCallback(new Error(`Error reading file ${fileRoute}: ${error.message}`));
-  });
-}
 
 function findLinksInFile(fileRoute, successCallback, errorCallback) {
   fs.readFile(fileRoute, 'utf-8', (error, content) => {
@@ -114,7 +97,6 @@ module.exports = {
   getRouteType,
   getMdFilesInDirectory,
   readMdFile,
-  readMdFileLineByLine,
   findLinksInFile
 }
 
