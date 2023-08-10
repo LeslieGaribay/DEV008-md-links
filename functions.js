@@ -16,14 +16,6 @@ function isPathValid(path, callback) {
   });
 }
 
-isPathValid(fileRoute, (exists) => {
-  if (exists) {
-    console.log('The file path exists.');
-  } else {
-    console.log('The file path does not exist.');
-  }
-});
-
 function makePathAbsolute(path) {
   if (isAbsolute(path)) {
     return path;
@@ -31,8 +23,6 @@ function makePathAbsolute(path) {
     return resolve(path);
   }
 };
-
-console.log(makePathAbsolute(fileRoute));
 
 function getRouteType(fileRoute, callback) {
   fs.stat(fileRoute, (error, stats) => {
@@ -50,14 +40,6 @@ function getRouteType(fileRoute, callback) {
   });
 }
 
-getRouteType(fileRoute, (error, routeType) => {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log(`The path ${fileRoute} is a ${routeType}.`);
-  }
-});
-
 function getMdFilesInDirectory(fileRoute, callback) {
   fs.readdir(fileRoute, (error, files) => {
     if (error) {
@@ -68,15 +50,6 @@ function getMdFilesInDirectory(fileRoute, callback) {
   });
 }
 
-getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
-  if (error) {
-    console.error(error.message);
-  } else {
-    console.log(`Files with extension .md in the path ${fileRoute}:`);
-    console.log(mdFiles)
-  }
-});
-
 function readMdFile(fileRoute, callback) {
   fs.readFile(fileRoute, 'utf-8', (error, data) => {
     if (error) {
@@ -85,15 +58,6 @@ function readMdFile(fileRoute, callback) {
     return callback(null, data);
   });
 }
-
-readMdFile(fileBeingRead, (error, data) => {
-  if (error) {
-    console.error(error.message);
-  } else {
-    console.log('File content:');
-    console.log(data);
-  }
-});
 
 function readMdFileLineByLine(fileRoute, lineCallback, errorCallback) {
   const rl = readline.createInterface({
@@ -114,17 +78,45 @@ function readMdFileLineByLine(fileRoute, lineCallback, errorCallback) {
   });
 }
 
-readMdFileLineByLine(fileBeingRead, line => {
-  console.log('Line:', line);
+function findLinksInFile(fileRoute, successCallback, errorCallback) {
+  fs.readFile(fileRoute, 'utf-8', (error, content) => {
+    if (error) {
+      return errorCallback(`Failed to find links in file ${fileRoute}: ${error.message}`);
+    }
+    const linkRegex = /\[(.+)\] *\((.+)\)/g;
+    const matches = [...content.matchAll(linkRegex)];
+  
+    if (!matches || matches.length === 0) {
+      return successCallback([]);
+    }
+
+    const links = matches.map(match => {
+      const [, text, url] = match;
+      return { text, url };
+    });
+
+    successCallback(links);
+  });
+}
+
+findLinksInFile(fileBeingRead, linksFound => {
+  console.log('Links found in the file:');
+  console.log(linksFound)
 },
   error => {
-    if (error) {
-      console.error(error.message);
-    } else {
-      console.log('File read completed.');
-    }
+    console.error(error);
   }
 );
+
+module.exports = {
+  isPathValid,
+  makePathAbsolute,
+  getRouteType,
+  getMdFilesInDirectory,
+  readMdFile,
+  readMdFileLineByLine,
+  findLinksInFile
+}
 
 //   if(fs.access(fileRoute).isDirectory()) {
 //     const files = fs.access(path);
@@ -143,11 +135,61 @@ readMdFileLineByLine(fileBeingRead, line => {
 // }
 // console.log(getFiles(fileRoute));
 
-module.exports = {
-  isPathValid,
-  makePathAbsolute,
-  getRouteType,
-  getMdFilesInDirectory,
-  readMdFile,
-  readMdFileLineByLine
-}
+/*
+isPathValid(fileRoute, (exists) => {
+  if (exists) {
+    console.log('The file path exists.');
+  } else {
+    console.log('The file path does not exist.');
+  }
+});
+
+console.log(makePathAbsolute(fileRoute));
+
+getRouteType(fileRoute, (error, routeType) => {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log(`The path ${fileRoute} is a ${routeType}.`);
+  }
+});
+
+getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
+  if (error) {
+    console.error(error.message);
+  } else {
+    console.log(`Files with extension .md in the path ${fileRoute}:`);
+    console.log(mdFiles)
+  }
+});
+
+readMdFile(fileBeingRead, (error, data) => {
+  if (error) {
+    console.error(error.message);
+  } else {
+    console.log('File content:');
+    console.log(data);
+  }
+});
+
+readMdFileLineByLine(fileBeingRead, line => {
+  console.log('Line:', line);
+},
+  error => {
+    if (error) {
+      console.error(error.message);
+    } else {
+      console.log('File read completed.');
+    }
+  }
+);
+
+findLinksInFile(fileBeingRead, linksFound => {
+  console.log('Links found in the file:');
+  console.log(linksFound)
+},
+  error => {
+    console.error(error);
+  }
+);
+*/
