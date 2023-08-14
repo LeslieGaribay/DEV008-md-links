@@ -2,6 +2,7 @@ const fs = require('fs');
 const { isAbsolute, resolve } = require('path');
 const path = require('path');
 const readline = require('readline');
+const fetch = require('node-fetch');
 
 const fileRoute = './Example';
 const fileBeingRead = './Example/file-1.md';
@@ -59,8 +60,6 @@ function readMdFile(fileRoute, callback) {
   });
 }
 
-
-
 function findLinksInFile(fileRoute, successCallback, errorCallback) {
   fs.readFile(fileRoute, 'utf-8', (error, content) => {
     if (error) {
@@ -68,7 +67,7 @@ function findLinksInFile(fileRoute, successCallback, errorCallback) {
     }
     const linkRegex = /\[(.+)\] *\((.+)\)/g;
     const matches = [...content.matchAll(linkRegex)];
-  
+
     if (!matches || matches.length === 0) {
       return successCallback([]);
     }
@@ -82,14 +81,39 @@ function findLinksInFile(fileRoute, successCallback, errorCallback) {
   });
 }
 
+function validateLinksInMdFile(links) {
+  const validatedLinks = links.map(link =>
+    fetch(link.url, { method: 'HEAD' })
+      .then(response => ({
+        url: link.url,
+        text: link.text,
+        status: response.status,
+        ok: response.ok,
+      }))
+      .catch(error => ({
+        url: link.url,
+        text: link.text,
+        status: error.status || 404,
+        ok: false,
+      }))
+  );
+  return Promise.all(validatedLinks);
+}
+
 findLinksInFile(fileBeingRead, linksFound => {
-  console.log('Links found in the file:');
-  console.log(linksFound)
+  validateLinksInMdFile(linksFound)
+    .then(validatedLinks => {
+      console.log('Links validation results:');
+      console.log(validatedLinks);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 },
   error => {
     console.error(error);
-  }
-);
+  });
+
 
 module.exports = {
   isPathValid,
@@ -97,27 +121,10 @@ module.exports = {
   getRouteType,
   getMdFilesInDirectory,
   readMdFile,
-  findLinksInFile
+  findLinksInFile,
+  validateLinksInMdFile
 }
 
-//   if(fs.access(fileRoute).isDirectory()) {
-//     const files = fs.access(path);
-//     const mdFiles = files.filter(file => path.extname(file) === 'md');
-//     if (mdFiles.length > 0) {
-//       console.log(`Files with extension .md in the path ${fileRoute}:`);
-//       mdFiles.forEach(file => console.log(file));
-//     } else {
-//       console.log(`No files with .md extension were found in the path ${fileRoute}`)
-//     }
-//     return true;
-
-//   } else {
-//     console.log('The path provided is a file, not a directory');
-//   }
-// }
-// console.log(getFiles(fileRoute));
-
-/*
 isPathValid(fileRoute, (exists) => {
   if (exists) {
     console.log('The file path exists.');
@@ -145,33 +152,37 @@ getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
   }
 });
 
-readMdFile(fileBeingRead, (error, data) => {
-  if (error) {
-    console.error(error.message);
-  } else {
-    console.log('File content:');
-    console.log(data);
-  }
-});
+// readMdFile(fileBeingRead, (error, data) => {
+//   if (error) {
+//     console.error(error.message);
+//   } else {
+//     console.log('File content:');
+//     console.log(data);
+//   }
+// });
 
-readMdFileLineByLine(fileBeingRead, line => {
-  console.log('Line:', line);
-},
-  error => {
-    if (error) {
-      console.error(error.message);
-    } else {
-      console.log('File read completed.');
-    }
-  }
-);
+// findLinksInFile(fileBeingRead, links => {
+//   console.log('Links found in the file:');
+//   console.log(links)
+// },
+//   error => {
+//     console.error(error);
+//   }
+// );
 
-findLinksInFile(fileBeingRead, linksFound => {
-  console.log('Links found in the file:');
-  console.log(linksFound)
-},
-  error => {
-    console.error(error);
-  }
-);
-*/
+//   if(fs.access(fileRoute).isDirectory()) {
+//     const files = fs.access(path);
+//     const mdFiles = files.filter(file => path.extname(file) === 'md');
+//     if (mdFiles.length > 0) {
+//       console.log(`Files with extension .md in the path ${fileRoute}:`);
+//       mdFiles.forEach(file => console.log(file));
+//     } else {
+//       console.log(`No files with .md extension were found in the path ${fileRoute}`)
+//     }
+//     return true;
+
+//   } else {
+//     console.log('The path provided is a file, not a directory');
+//   }
+// }
+// console.log(getFiles(fileRoute));
