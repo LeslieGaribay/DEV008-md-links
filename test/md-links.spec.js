@@ -1,4 +1,6 @@
-const { isPathValid, getRouteType } = require('../functions.js');
+const fs = require('fs'); 
+
+const { isPathValid, getRouteType, getMdFilesInDirectory } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
 const fakeRelativeRoute = '..\\Example';
@@ -10,7 +12,7 @@ function tick() {
   });
 }
 
-describe('test para isPathValid', () => {
+describe('test for isPathValid', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
@@ -21,7 +23,7 @@ describe('test para isPathValid', () => {
     jest.resetModules();
   });
 
-  it('debería pasar una ruta válida', async () => {
+  it('should validate a valid path', async () => {
     const mockCallback = jest.fn();
     isPathValid(fakeAbsoluteRoute, mockCallback);
     await tick();
@@ -31,7 +33,7 @@ describe('test para isPathValid', () => {
     expect(mockCallback).toHaveBeenCalledWith(true);
   });
 
-  it('debería mostrar error si la ruta es inválida', async () => {
+  it('should show error if path is invalid', async () => {
     const mockCallback = jest.fn();
     isPathValid(fakeInvalidRoute, mockCallback);
     await tick();
@@ -40,7 +42,7 @@ describe('test para isPathValid', () => {
   });
 });
 
-describe('test para makePathAbsolute', () => {
+describe('test for makePathAbsolute', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
@@ -51,7 +53,7 @@ describe('test para makePathAbsolute', () => {
     jest.resetModules();
   });
 
-  it('debería convertir una ruta relativa a una absoluta', async () => {
+  it('should convert a relative path to an absolute one', async () => {
     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
     const mockIsAbsolute = jest.fn().mockImplementation(() => false);
     const mockResolve = jest.fn().mockImplementation(() => fakeAbsoluteRoute);
@@ -69,7 +71,7 @@ describe('test para makePathAbsolute', () => {
   });
 });
 
-describe('test para getRouteType', () => {
+describe('test for getRouteType', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
@@ -80,7 +82,7 @@ describe('test para getRouteType', () => {
     jest.resetModules();
   });
 
-  it('debería obtener el tipo de ruta', async () => {
+  it('should get the route type', async () => {
     const mockCallback = jest.fn();
     getRouteType(fakeAbsoluteRoute, mockCallback);
     await tick();
@@ -90,6 +92,43 @@ describe('test para getRouteType', () => {
   });
 });
 
-// describe('test para getMdFilesInDirectory', () => {
+describe('test for getMdFilesInDirectory', () => {
 
-// });
+  beforeEach(() => {
+    jest.spyOn(fs, 'readdir');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should get .md files in the directory', async () => {
+    const mockCallback = jest.fn();
+    getMdFilesInDirectory(fakeAbsoluteRoute, mockCallback);
+    await tick();
+    await tick();
+    await tick();
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+
+
+  it('should return an array of .md files', () => {
+    const files = ['file1.md', 'file2.txt', 'file3.md'];
+    fs.readdir.mockImplementation((path, callback) => callback(null, files));
+
+    getMdFilesInDirectory(fakeAbsoluteRoute, (error, mdFiles) => {
+      expect(error).toBeNull();
+      expect(mdFiles).toEqual(['file1.md', 'file3.md']);
+    });
+  });
+
+  it('should handle readdir error', () => {
+    fs.readdir.mockImplementation((path, callback) => callback(new Error('Read error')));
+
+    getMdFilesInDirectory(fakeAbsoluteRoute, (error, mdFiles) => {
+      expect(error).toBeInstanceOf(Error);
+      expect(mdFiles).toBeUndefined();
+    });
+  });
+
+});

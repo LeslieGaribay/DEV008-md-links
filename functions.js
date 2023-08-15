@@ -100,19 +100,19 @@ function validateLinksInMdFile(links) {
   return Promise.all(validatedLinks);
 }
 
-findLinksInFile(fileBeingRead, linksFound => {
-  validateLinksInMdFile(linksFound)
-    .then(validatedLinks => {
-      console.log('Links validation results:');
-      console.log(validatedLinks);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-},
-  error => {
-    console.error(error);
-  });
+// findLinksInFile(fileBeingRead, linksFound => {
+//   validateLinksInMdFile(linksFound)
+//     .then(validatedLinks => {
+//       console.log('Links validation results:');
+//       console.log(validatedLinks);
+//     })
+//     .catch(error => {
+//       console.error('Error:', error);
+//     });
+// },
+//   error => {
+//     console.error(error);
+//   });
 
 
 module.exports = {
@@ -125,32 +125,32 @@ module.exports = {
   validateLinksInMdFile
 }
 
-isPathValid(fileRoute, (exists) => {
-  if (exists) {
-    console.log('The file path exists.');
-  } else {
-    console.log('The file path does not exist.');
-  }
-});
+// isPathValid(fileRoute, (exists) => {
+//   if (exists) {
+//     console.log('The file path exists.');
+//   } else {
+//     console.log('The file path does not exist.');
+//   }
+// });
 
-console.log(makePathAbsolute(fileRoute));
+// console.log(makePathAbsolute(fileRoute));
 
-getRouteType(fileRoute, (error, routeType) => {
-  if (error) {
-    console.error(error);
-  } else {
-    console.log(`The path ${fileRoute} is a ${routeType}.`);
-  }
-});
+// getRouteType(fileRoute, (error, routeType) => {
+//   if (error) {
+//     console.error(error);
+//   } else {
+//     console.log(`The path ${fileRoute} is a ${routeType}.`);
+//   }
+// });
 
-getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
-  if (error) {
-    console.error(error.message);
-  } else {
-    console.log(`Files with extension .md in the path ${fileRoute}:`);
-    console.log(mdFiles)
-  }
-});
+// getMdFilesInDirectory(fileRoute, (error, mdFiles) => {
+//   if (error) {
+//     console.error(error.message);
+//   } else {
+//     console.log(`Files with extension .md in the path ${fileRoute}:`);
+//     console.log(mdFiles)
+//   }
+// });
 
 // readMdFile(fileBeingRead, (error, data) => {
 //   if (error) {
