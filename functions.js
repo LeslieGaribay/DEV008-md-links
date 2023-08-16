@@ -102,11 +102,45 @@ function validateLinksInMdFile(links) {
   return Promise.all(validatedLinks);
 }
 
+function calculateStatistics(validatedLinks, validateOption) { //validateOption: true o false. Se va a llamar en la megafunción
+  let total = 0;
+  let unique = 0;
+  let broken = 0;
+
+  total = validatedLinks.length;
+  unique = (new Set(validatedLinks.map(value => value.url))).size;
+
+  if (validateOption) {
+    broken = validatedLinks.filter(value => value.ok === false).length;
+    return {
+      total,
+      unique,
+      broken
+    };
+  } else {
+    return {
+      total,
+      unique
+    };
+
+  }
+}
+
+
+
 findLinksInFile(fileBeingRead, linksFound => {
+  console.log("Links found statistics:");
+  console.log(
+    calculateStatistics(linksFound, false)
+  );
   validateLinksInMdFile(linksFound)
     .then(validatedLinks => {
       console.log('Links validation results:');
       console.log(validatedLinks);
+      console.log("Validate statistics:");
+      console.log(
+        calculateStatistics(validatedLinks, true)
+      );
     })
     .catch(error => {
       console.error('Error:', error);
