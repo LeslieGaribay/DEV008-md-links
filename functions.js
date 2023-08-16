@@ -126,19 +126,40 @@ function calculateStatistics(validatedLinks, validateOption) { //validateOption:
   }
 }
 
+function printStatistics(statistics) {
+  console.log(`Total: ${statistics.total}`);
+  console.log(`Unique: ${statistics.unique}`);
+  if (statistics.broken !== undefined) {
+    console.log(`Broken: ${statistics.broken}`);
+  }
+}
 
+function printValidationResult(validatedLinks) {
+  if (validatedLinks.length === 0) {
+    console.log("No links found!");
+  }
+  else if (validatedLinks[0].ok === undefined) { // links without validation
+    validatedLinks.forEach(element => {
+      console.log(`${element.file} ${element.url} ${element.text}`);
+    });
+  } else {
+    validatedLinks.forEach(element => { // validated links
+      console.log(`${element.file} ${element.url} ${element.ok ? "ok" : "fail"} ${element.status} ${element.text}`);
+    });
+  }
+}
 
 findLinksInFile(fileBeingRead, linksFound => {
   console.log("Links found statistics:");
-  console.log(
+  printStatistics(
     calculateStatistics(linksFound, false)
   );
   validateLinksInMdFile(linksFound)
     .then(validatedLinks => {
       console.log('Links validation results:');
-      console.log(validatedLinks);
+      printValidationResult(validatedLinks);
       console.log("Validate statistics:");
-      console.log(
+      printStatistics(
         calculateStatistics(validatedLinks, true)
       );
     })
@@ -158,7 +179,8 @@ module.exports = {
   getMdFilesInDirectory,
   readMdFile,
   findLinksInFile,
-  validateLinksInMdFile
+  validateLinksInMdFile,
+  calculateStatistics
 }
 
 // isPathValid(fileRoute, (exists) => {
@@ -196,15 +218,6 @@ module.exports = {
 //     console.log(data);
 //   }
 // });
-
-// findLinksInFile(fileBeingRead, links => {
-//   console.log('Links found in the file:');
-//   console.log(links)
-// },
-//   error => {
-//     console.error(error);
-//   }
-// );
 
 //   if(fs.access(fileRoute).isDirectory()) {
 //     const files = fs.access(path);
