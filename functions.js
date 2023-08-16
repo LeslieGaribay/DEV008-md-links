@@ -102,74 +102,74 @@ function validateLinksInMdFile(links) {
   return Promise.all(validatedLinks);
 }
 
-function calculateStatistics(validatedLinks, validateOption) { //validateOption: true o false. Se va a llamar en la megafunción
-  let total = 0;
-  let unique = 0;
-  let broken = 0;
+// function calculateStatistics(validatedLinks, validateOption) { //validateOption: true o false. Se va a llamar en la megafunción
+//   let total = 0;
+//   let unique = 0;
+//   let broken = 0;
 
-  total = validatedLinks.length;
-  unique = (new Set(validatedLinks.map(value => value.url))).size;
+//   total = validatedLinks.length;
+//   unique = (new Set(validatedLinks.map(value => value.url))).size;
 
-  if (validateOption) {
-    broken = validatedLinks.filter(value => value.ok === false).length;
-    return {
-      total,
-      unique,
-      broken
-    };
-  } else {
-    return {
-      total,
-      unique
-    };
+//   if (validateOption) {
+//     broken = validatedLinks.filter(value => value.ok === false).length;
+//     return {
+//       total,
+//       unique,
+//       broken
+//     };
+//   } else {
+//     return {
+//       total,
+//       unique
+//     };
 
-  }
-}
+//   }
+// }
 
-function printStatistics(statistics) {
-  console.log(`Total: ${statistics.total}`);
-  console.log(`Unique: ${statistics.unique}`);
-  if (statistics.broken !== undefined) {
-    console.log(`Broken: ${statistics.broken}`);
-  }
-}
+// function printStatistics(statistics) {
+//   console.log(`Total: ${statistics.total}`);
+//   console.log(`Unique: ${statistics.unique}`);
+//   if (statistics.broken !== undefined) {
+//     console.log(`Broken: ${statistics.broken}`);
+//   }
+// }
 
-function printValidationResult(validatedLinks) {
-  if (validatedLinks.length === 0) {
-    console.log("No links found!");
-  }
-  else if (validatedLinks[0].ok === undefined) { // links without validation
-    validatedLinks.forEach(element => {
-      console.log(`${element.file} ${element.url} ${element.text}`);
-    });
-  } else {
-    validatedLinks.forEach(element => { // validated links
-      console.log(`${element.file} ${element.url} ${element.ok ? "ok" : "fail"} ${element.status} ${element.text}`);
-    });
-  }
-}
+// function printValidationResult(validatedLinks) {
+//   if (validatedLinks.length === 0) {
+//     console.log("No links found!");
+//   }
+//   else if (validatedLinks[0].ok === undefined) { // links sin validación
+//     validatedLinks.forEach(element => {
+//       console.log(`${element.file} ${element.url} ${element.text}`);
+//     });
+//   } else {
+//     validatedLinks.forEach(element => { // links validados
+//       console.log(`${element.file} ${element.url} ${element.ok ? "ok" : "fail"} ${element.status} ${element.text}`);
+//     });
+//   }
+// }
 
-findLinksInFile(fileBeingRead, linksFound => {
-  console.log("Links found statistics:");
-  printStatistics(
-    calculateStatistics(linksFound, false)
-  );
-  validateLinksInMdFile(linksFound)
-    .then(validatedLinks => {
-      console.log('Links validation results:');
-      printValidationResult(validatedLinks);
-      console.log("Validate statistics:");
-      printStatistics(
-        calculateStatistics(validatedLinks, true)
-      );
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-},
-  error => {
-    console.error(error);
-  });
+// findLinksInFile(fileBeingRead, linksFound => {
+//   console.log("Links found statistics:");
+//   printStatistics(
+//     calculateStatistics(linksFound, false)
+//   );
+//   validateLinksInMdFile(linksFound)
+//     .then(validatedLinks => {
+//       console.log('Links validation results:');
+//       printValidationResult(validatedLinks);
+//       console.log("Validate statistics:");
+//       printStatistics(
+//         calculateStatistics(validatedLinks, true)
+//       );
+//     })
+//     .catch(error => {
+//       console.error('Error:', error);
+//     });
+// },
+//   error => {
+//     console.error(error);
+//   });
 
 
 module.exports = {
@@ -180,7 +180,7 @@ module.exports = {
   readMdFile,
   findLinksInFile,
   validateLinksInMdFile,
-  calculateStatistics
+  // calculateStatistics
 }
 
 // isPathValid(fileRoute, (exists) => {

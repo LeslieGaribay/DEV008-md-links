@@ -3,6 +3,7 @@ const fs = require('fs');
 const { isPathValid, getRouteType, getMdFilesInDirectory } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
+const fakeValidFile = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example\\file-1.md'
 const fakeRelativeRoute = '..\\Example';
 const fakeInvalidRoute = 'C:\\Users\\Leslie\\Documents\\Labororia\\DElinks\\Example';
 
@@ -89,6 +90,72 @@ describe('test for getRouteType', () => {
     await tick();
     await tick();
     expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return "file" for an existing file', (done) => {
+    jest.mock('fs', () => ({
+      stat: (path, callback) => {
+        const mockCallback = {
+          isFile: () => false,
+          isDirectory: () => true,
+        };
+        callback(null, mockCallback);
+      },
+    }));
+    getRouteType(fakeValidFile, (error, type) => {
+      expect(error).toBeNull();
+      expect(type).toBe('file');
+      done();
+    });
+  });
+
+  it('should return "directory" for an existing directory', (done) => {
+    jest.mock('fs', () => ({
+      stat: (path, callback) => {
+        const mockCallback = {
+          isFile: () => true,
+          isDirectory: () => false,
+        };
+        callback(null, mockCallback);
+      },
+    }));
+
+    getRouteType(fakeAbsoluteRoute, (error, type) => {
+      expect(error).toBeNull();
+      expect(type).toBe('directory');
+      done();
+    });
+  });
+
+  it('should return "unknown" for an unknown type', (done) => {
+    jest.spyOn(fs, 'stat').mockImplementation((path, callback) => {
+      const mockCallback = {
+        isFile: () => false,
+        isDirectory: () => false,
+      };
+      callback(null, mockCallback);
+    });
+  
+    getRouteType('route/file/file-or-directoy-unknown', (error, type) => {
+      expect(error).toBeNull();
+      expect(type).toBe('unknown');
+      done();
+    });
+  });
+
+  
+  it('should handle an error getting the file/directory information', (done) => {
+    const mockError = new Error('Error al obtener información');
+
+    jest.spyOn(fs, 'stat').mockImplementation((path, callback) => {
+      callback(mockError);
+    });
+
+    getRouteType('ruta/al/archivo-o-directorio', (error, type) => {
+      expect(error).toEqual(`Error getting route type: ${mockError.message}`);
+      expect(type).toBeUndefined(); // No debería haber tipo en caso de error
+      done();
+    });
   });
 });
 
