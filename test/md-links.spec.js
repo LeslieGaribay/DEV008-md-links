@@ -132,3 +132,47 @@ describe('test for getMdFilesInDirectory', () => {
   });
 
 });
+
+// describe('test for makePathAbsolute', () => {
+//   beforeEach(() => {
+//     jest.clearAllMocks()
+//     jest.resetModules();
+//   });
+
+//   afterEach(() => {
+//     jest.clearAllMocks()
+//     jest.resetModules();
+//   });
+
+//   it('should return the same path if it is already absolute', () => {
+//     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
+//     const mockIsAbsolute = jest.fn().mockReturnValue(true);
+//     path.isAbsolute = mockIsAbsolute;
+
+//     const result = makePathAbsolute(fakeAbsoluteRoute);
+//     expect(result).toBe(fakeAbsoluteRoute);
+
+//     expect(mockIsAbsolute).toHaveBeenCalledTimes(1);
+//     expect(path.resolve).not.toHaveBeenCalled();
+//   });
+
+//   it('should convert a relative path to an absolute one', () => {
+//     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
+//     const mockIsAbsolute = jest.fn().mockReturnValue(false);
+//     const mockResolve = jest.fn().mockReturnValue(fakeAbsoluteRoute);
+//     path.isAbsolute = mockIsAbsolute;
+//     path.resolve = mockResolve;
+//     // jest.mock('path', () => ({
+//     //   isAbsolute: mockIsAbsolute,
+//     //   resolve: mockResolve
+//     // }));
+//     // const { makePathAbsolute } = require('../functions.js');
+//     const result = makePathAbsolute('..\\Example');
+  
+//     expect(result).toBe(fakeAbsoluteRoute);
+
+//     expect(mockIsAbsolute).toHaveBeenCalledTimes(1);
+//     expect(mockResolve).toHaveBeenCalledTimes(1);
+//     expect(mockResolve).toHaveBeenCalledWith(fakeRelativeRoute);
+//   });
+// });

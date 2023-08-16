@@ -73,8 +73,8 @@ function findLinksInFile(fileRoute, successCallback, errorCallback) {
     }
 
     const links = matches.map(match => {
-      const [, text, url] = match;
-      return { text, url };
+      const [, text, url ] = match;
+      return { text, url, file: fileRoute };
     });
 
     successCallback(links);
@@ -87,12 +87,14 @@ function validateLinksInMdFile(links) {
       .then(response => ({
         url: link.url,
         text: link.text,
+        file: link.file,
         status: response.status,
         ok: response.ok,
       }))
       .catch(error => ({
         url: link.url,
         text: link.text,
+        file: link.file,
         status: error.status || 404,
         ok: false,
       }))
@@ -100,19 +102,19 @@ function validateLinksInMdFile(links) {
   return Promise.all(validatedLinks);
 }
 
-// findLinksInFile(fileBeingRead, linksFound => {
-//   validateLinksInMdFile(linksFound)
-//     .then(validatedLinks => {
-//       console.log('Links validation results:');
-//       console.log(validatedLinks);
-//     })
-//     .catch(error => {
-//       console.error('Error:', error);
-//     });
-// },
-//   error => {
-//     console.error(error);
-//   });
+findLinksInFile(fileBeingRead, linksFound => {
+  validateLinksInMdFile(linksFound)
+    .then(validatedLinks => {
+      console.log('Links validation results:');
+      console.log(validatedLinks);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+},
+  error => {
+    console.error(error);
+  });
 
 
 module.exports = {
