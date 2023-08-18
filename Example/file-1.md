@@ -16,4 +16,4 @@
 
 [Link9] (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions)
 
-[Link10] (https://www.eloper.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions)
+[Link10] (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions)

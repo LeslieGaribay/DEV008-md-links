@@ -3,6 +3,7 @@ const { isAbsolute, resolve } = require('path');
 const path = require('path');
 const readline = require('readline');
 const fetch = require('node-fetch');
+const chalk = require('chalk');
 
 const fileRoute = './Example';
 const fileBeingRead = './Example/file-1.md';
@@ -102,63 +103,63 @@ function validateLinksInMdFile(links) {
   return Promise.all(validatedLinks);
 }
 
-// function calculateStatistics(validatedLinks, validateOption) { //validateOption: true o false. Se va a llamar en la megafunción
-//   let total = 0;
-//   let unique = 0;
-//   let broken = 0;
+function calculateStatistics(validatedLinks, validateOption) { //validateOption: true o false. Se va a llamar en la megafunción
+  let total = 0;
+  let unique = 0;
+  let broken = 0;
 
-//   total = validatedLinks.length;
-//   unique = (new Set(validatedLinks.map(value => value.url))).size;
+  total = validatedLinks.length;
+  unique = (new Set(validatedLinks.map(value => value.url))).size;
 
-//   if (validateOption) {
-//     broken = validatedLinks.filter(value => value.ok === false).length;
-//     return {
-//       total,
-//       unique,
-//       broken
-//     };
-//   } else {
-//     return {
-//       total,
-//       unique
-//     };
+  if (validateOption) {
+    broken = validatedLinks.filter(value => value.ok === false).length;
+    return {
+      total,
+      unique,
+      broken
+    };
+  } else {
+    return {
+      total,
+      unique
+    };
 
-//   }
-// }
+  }
+}
 
-// function printStatistics(statistics) {
-//   console.log(`Total: ${statistics.total}`);
-//   console.log(`Unique: ${statistics.unique}`);
-//   if (statistics.broken !== undefined) {
-//     console.log(`Broken: ${statistics.broken}`);
-//   }
-// }
+function printStatistics(statistics) {
+  console.log(chalk.cyan(`Total: ${statistics.total}`));
+  console.log(chalk.magenta(`Unique: ${statistics.unique}`));
+  if (statistics.broken !== undefined) {
+    console.log(chalk.yellow(`Broken: ${statistics.broken}`));
+  }
+}
 
-// function printValidationResult(validatedLinks) {
-//   if (validatedLinks.length === 0) {
-//     console.log("No links found!");
-//   }
-//   else if (validatedLinks[0].ok === undefined) { // links sin validación
-//     validatedLinks.forEach(element => {
-//       console.log(`${element.file} ${element.url} ${element.text}`);
-//     });
-//   } else {
-//     validatedLinks.forEach(element => { // links validados
-//       console.log(`${element.file} ${element.url} ${element.ok ? "ok" : "fail"} ${element.status} ${element.text}`);
-//     });
-//   }
-// }
+function printValidationResult(validatedLinks) {
+  if (validatedLinks.length === 0) {
+    console.log(chalk.red("No links found!"));
+  }
+  else if (validatedLinks[0].ok === undefined) { // links sin validación
+    validatedLinks.forEach(element => {
+      console.log(`${element.file} ${element.url} ${element.text}`);
+    });
+  } else {
+    validatedLinks.forEach(element => { // links validados
+      console.log(`${chalk.magenta(element.file)} ${element.url} ${chalk.green(element.ok ? "ok" : "fail")} ${chalk.yellow(element.status)} ${chalk.cyan(element.text)}`);
+    });
+  }
+}
 
 // findLinksInFile(fileBeingRead, linksFound => {
-//   console.log("Links found statistics:");
+//   console.log(chalk.bgWhite.bold("Links found statistics:"));
 //   printStatistics(
 //     calculateStatistics(linksFound, false)
 //   );
 //   validateLinksInMdFile(linksFound)
 //     .then(validatedLinks => {
-//       console.log('Links validation results:');
+//       console.log(chalk.bgWhite.bold('Links validation results:'));
 //       printValidationResult(validatedLinks);
-//       console.log("Validate statistics:");
+//       console.log(chalk.bgWhite.bold("Validate statistics:"));
 //       printStatistics(
 //         calculateStatistics(validatedLinks, true)
 //       );
@@ -168,7 +169,7 @@ function validateLinksInMdFile(links) {
 //     });
 // },
 //   error => {
-//     console.error(error);
+//     console.error(chalk.red(error));
 //   });
 
 

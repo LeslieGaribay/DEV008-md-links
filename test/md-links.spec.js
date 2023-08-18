@@ -1,6 +1,6 @@
 const fs = require('fs'); 
 
-const { isPathValid, getRouteType, getMdFilesInDirectory } = require('../functions.js');
+const { isPathValid, getRouteType, getMdFilesInDirectory, readMdFile, findLinksInFile } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
 const fakeValidFile = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example\\file-1.md'
@@ -200,6 +200,95 @@ describe('test for getMdFilesInDirectory', () => {
 
 });
 
+describe('test for readMdFile', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
+
+  jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
+    if (path === 'existing.md') {
+      callback(null, 'Contenido del archivo');
+    } else {
+      callback(new Error('Archivo no encontrado'));
+    }
+  });
+
+  it('should read an existing file', async () => {
+    const mockCallback = jest.fn();
+    readMdFile(fakeValidFile, mockCallback);
+    await tick();
+    await tick();
+    await tick();
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle an error reading a non-existent file', (done) => {
+    readMdFile('non-existent.md', (error, data) => {
+      expect(error).toBeDefined();
+      expect(data).toBeUndefined();
+      done();
+    });
+  });
+});
+
+describe('test for findLinksInFile', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+    jest.resetModules();
+  });
+
+  it('should find links in file', async () => {
+    const mockCallback = jest.fn();
+    findLinksInFile(fakeValidFile, mockCallback, mockCallback);
+    await tick();
+    await tick();
+    await tick();
+    expect(mockCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle files without links', () => {
+    jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
+      callback(null, 'Sample content without links');
+    });
+
+    const successCallback = jest.fn();
+    const errorCallback = jest.fn();
+
+    findLinksInFile('fileWithoutLinks', successCallback, errorCallback);
+
+    expect(successCallback).toHaveBeenCalledTimes(1);
+    expect(errorCallback).not.toHaveBeenCalled();
+
+    expect(successCallback).toHaveBeenCalledWith([]);
+  });
+
+  it('should handle errors when reading a file', () => {
+    jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
+      callback(new Error('File not found'));
+    });
+    const successCallback = jest.fn();
+    const errorCallback = jest.fn();
+    findLinksInFile('invalidFile', successCallback, errorCallback);
+
+    expect(errorCallback).toHaveBeenCalledTimes(1);
+    expect(successCallback).not.toHaveBeenCalled();
+
+    expect(errorCallback).toHaveBeenCalledWith(
+      'Failed to find links in file invalidFile: File not found'
+    );
+  });
+});
 // describe('test for makePathAbsolute', () => {
 //   beforeEach(() => {
 //     jest.clearAllMocks()
