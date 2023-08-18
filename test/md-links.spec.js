@@ -1,6 +1,12 @@
 const fs = require('fs'); 
 
-const { isPathValid, getRouteType, getMdFilesInDirectory, readMdFile, findLinksInFile } = require('../functions.js');
+const { isPathValid,
+  getRouteType,
+  getMdFilesInDirectory,
+  readMdFile,
+  findLinksInFile,
+  validateLinksInMdFile
+} = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
 const fakeValidFile = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example\\file-1.md'
@@ -289,6 +295,69 @@ describe('test for findLinksInFile', () => {
     );
   });
 });
+
+describe('test for validateLinksInMdFile', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });  
+  
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should validate a single link with 200 status', async () => {
+    const mockLink = {
+      url: 'http://example.com',
+      text: 'Example',
+      file: 'example.md',
+    };
+  
+    const mockResponse = {
+      status: 200,
+      ok: true,
+    };
+  
+    global.fetch = jest.fn().mockResolvedValue(mockResponse);
+  
+    const result = await validateLinksInMdFile([mockLink]);
+  
+    expect(result).toEqual([
+      {
+      url: mockLink.url,
+      text: mockLink.text,
+      file: mockLink.file,
+      status: mockResponse.status,
+      ok: mockResponse.ok,
+      },
+    ]);
+  });
+
+  it('should handle a single link with 404 status', async () => {
+    const mockLink = {
+      url: 'http://nonexistent.com',
+      text: 'Nonexistent',
+      file: 'nonexistent.md',
+    };
+
+    const mockErrorResponse = {status: 404};
+
+    global.fetch = jest.fn().mockRejectedValue(mockErrorResponse);
+
+    const result = await validateLinksInMdFile([mockLink]);
+
+    expect(result).toEqual([
+      {url: mockLink.url,
+      text: mockLink.text,
+      file: mockLink.file,
+      status: mockErrorResponse.status,
+      ok: false,
+      },
+    ]);
+  });
+});
+
+
+
 // describe('test for makePathAbsolute', () => {
 //   beforeEach(() => {
 //     jest.clearAllMocks()
