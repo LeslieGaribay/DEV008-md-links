@@ -137,7 +137,7 @@ function printStatistics(statistics) {
 
 function printValidationResult(validatedLinks) {
   if (validatedLinks.length === 0) {
-    console.log(chalk.red("No links found!"));
+    console.log(chalk.red('No links found!'));
   }
   else if (validatedLinks[0].ok === undefined) { // links sin validación
     validatedLinks.forEach(element => {
@@ -182,7 +182,8 @@ module.exports = {
   findLinksInFile,
   validateLinksInMdFile,
   calculateStatistics,
-  printStatistics
+  printStatistics,
+  printValidationResult
 }
 
 // isPathValid(fileRoute, (exists) => {

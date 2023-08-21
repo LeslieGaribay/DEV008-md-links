@@ -8,7 +8,8 @@ const { isPathValid,
   findLinksInFile,
   validateLinksInMdFile,
   calculateStatistics,
-  printStatistics
+  printStatistics,
+  printValidationResult
 } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
@@ -444,6 +445,62 @@ describe('test for printStatistics', () => {
     expect(consoleSpy).toHaveBeenCalledWith(chalk.magenta('Unique: 5'));
     expect(consoleSpy).not.toHaveBeenCalledWith(expect.stringContaining('Broken'));
   });
+});
+
+describe('test for printValidationResult', () => {
+  jest.mock('chalk');
+  let consoleSpy;
+
+  jest.mock('chalk', () => ({
+    cyan: jest.fn(),
+    magenta: jest.fn(),
+    red: jest.fn(),
+    green: jest.fn(),
+  }));
+
+  beforeEach(() => {
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  });  
+  
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  it('should print "No links found!" when there are no links', () => {
+    const validatedLinks = [];
+    printValidationResult(validatedLinks);
+
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.red('No links found!'));
+  });
+
+  it('should print links with no validation', () => {
+    const validatedLinks = [
+      { file: 'file1.md', url: 'https://example.com', text: 'Example' },
+      { file: 'file2.md', url: 'https://anotherexample.com', text: 'Another Example' },
+    ];
+
+    printValidationResult(validatedLinks);
+
+    validatedLinks.forEach(element => {
+      expect(consoleSpy).toHaveBeenCalledWith(`${element.file} ${element.url} ${element.text}`);
+    });
+  });
+
+  it('should print validated links', () => {
+    const validatedLinks = [
+      { file: 'file1.md', url: 'https://example.com', ok: true, status: 200, text: 'Example' },
+      { file: 'file2.md', url: 'https://anotherexample.com', ok: false, status: 404, text: 'Another Example' },
+    ];
+
+    printValidationResult(validatedLinks);
+
+    validatedLinks.forEach(element => {
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `${chalk.magenta(element.file)} ${element.url} ${chalk.green(element.ok ? 'ok' : 'fail')} ${chalk.yellow(element.status)} ${chalk.cyan(element.text)}`
+      );
+    });
+  });
+
 });
 
 // describe('test for makePathAbsolute', () => {
