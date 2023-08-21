@@ -181,7 +181,8 @@ module.exports = {
   readMdFile,
   findLinksInFile,
   validateLinksInMdFile,
-  // calculateStatistics
+  calculateStatistics,
+  printStatistics
 }
 
 // isPathValid(fileRoute, (exists) => {

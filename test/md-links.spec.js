@@ -1,11 +1,14 @@
-const fs = require('fs'); 
+const fs = require('fs');
+const chalk = require('chalk');
 
 const { isPathValid,
   getRouteType,
   getMdFilesInDirectory,
   readMdFile,
   findLinksInFile,
-  validateLinksInMdFile
+  validateLinksInMdFile,
+  calculateStatistics,
+  printStatistics
 } = require('../functions.js');
 
 const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
@@ -81,12 +84,10 @@ describe('test for makePathAbsolute', () => {
 describe('test for getRouteType', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   afterEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   it('should get the route type', async () => {
@@ -148,7 +149,6 @@ describe('test for getRouteType', () => {
       done();
     });
   });
-
   
   it('should handle an error getting the file/directory information', (done) => {
     const mockError = new Error('Error al obtener información');
@@ -209,12 +209,10 @@ describe('test for getMdFilesInDirectory', () => {
 describe('test for readMdFile', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   afterEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
@@ -246,18 +244,15 @@ describe('test for readMdFile', () => {
 describe('test for findLinksInFile', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   afterEach(() => {
     jest.resetAllMocks();
-    jest.resetModules();
   });
 
   it('should find links in file', async () => {
     const mockCallback = jest.fn();
     findLinksInFile(fakeValidFile, mockCallback, mockCallback);
-    await tick();
     await tick();
     await tick();
     expect(mockCallback).toHaveBeenCalledTimes(1);
@@ -356,7 +351,100 @@ describe('test for validateLinksInMdFile', () => {
   });
 });
 
+describe('test for calculateStatistics', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });  
+  
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
 
+  const sampleLinks = [
+    { url: 'https://example.com', ok: true },
+    { url: 'https://example.com', ok: false },
+    { url: 'https://anotherexample.com', ok: true },
+  ];
+
+  it('should calculate base stats correctly', () => {
+    const result = calculateStatistics(sampleLinks, false);
+    expect(result).toEqual({ total: 3, unique: 2 });
+  });
+
+  it('should calculate stats including broken links', () => {
+    const result = calculateStatistics(sampleLinks, true);
+    expect(result).toEqual({ total: 3, unique: 2, broken: 1 });
+  });
+
+  it('should handle an empty list of links', () => {
+    const result = calculateStatistics([], true);
+    expect(result).toEqual({ total: 0, unique: 0, broken: 0 });
+  });
+
+  it('should handle a list of links with no broken links', () => {
+    const linksWithoutBroken = [
+      { url: 'https://example.com', ok: true },
+      { url: 'https://anotherexample.com', ok: true },
+    ];
+
+    const result = calculateStatistics(linksWithoutBroken, true);
+    expect(result).toEqual({ total: 2, unique: 2, broken: 0 });
+  });
+
+  it('should handle a list of links with no unique links', () => {
+    const linksWithDuplicates = [
+      { url: 'https://example.com', ok: true },
+      { url: 'https://example.com', ok: true },
+    ];
+
+    const result = calculateStatistics(linksWithDuplicates, true);
+    expect(result).toEqual({ total: 2, unique: 1, broken: 0 });
+  });
+});
+
+describe('test for printStatistics', () => {
+  jest.mock('chalk');
+  let consoleSpy;
+
+  jest.mock('chalk', () => ({
+    cyan: jest.fn(),
+    magenta: jest.fn(),
+  }));
+
+  beforeEach(() => {
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  });  
+  
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  it('should print basic statistics', () => {
+    const statistics = { total: 5, unique: 3 };
+    printStatistics(statistics);
+
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Total: 5'));
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.magenta('Unique: 3'));
+  });
+
+  it('should print basic statistics including broken links', () => {
+    const statistics = { total: 7, unique: 4, broken: 2 };
+    printStatistics(statistics);
+
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Total: 7'));
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.magenta('Unique: 4'));
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('Broken: 2'));
+  });
+
+  it('should print statistics with no broken links', () => {
+    const statistics = { total: 10, unique: 5 };
+    printStatistics(statistics);
+
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Total: 10'));
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.magenta('Unique: 5'));
+    expect(consoleSpy).not.toHaveBeenCalledWith(expect.stringContaining('Broken'));
+  });
+});
 
 // describe('test for makePathAbsolute', () => {
 //   beforeEach(() => {
