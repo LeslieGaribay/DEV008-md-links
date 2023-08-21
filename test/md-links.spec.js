@@ -2,6 +2,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 
 const { isPathValid,
+  makePathAbsolute,
   getRouteType,
   getMdFilesInDirectory,
   readMdFile,
@@ -62,6 +63,13 @@ describe('test for makePathAbsolute', () => {
   afterEach(() => {
     jest.resetAllMocks();
     jest.resetModules();
+  });
+
+  it('should keep an absolute path unchanged', () => {
+    const absolutePath = '/absolute-route';
+    const result = makePathAbsolute(absolutePath);
+
+    expect(result).toBe(absolutePath);
   });
 
   it('should convert a relative path to an absolute one', async () => {
