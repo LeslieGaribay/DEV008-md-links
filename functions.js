@@ -61,16 +61,16 @@ function readMdFile(fileRoute, callback) {
   });
 }
 
-function findLinksInFile(fileRoute, successCallback, errorCallback) {
+function findLinksInFile(fileRoute, callback) {
   fs.readFile(fileRoute, 'utf-8', (error, content) => {
     if (error) {
-      return errorCallback(`Failed to find links in file ${fileRoute}: ${error.message}`);
+      return callback(`Failed to find links in file ${fileRoute}: ${error.message}`);
     }
     const linkRegex = /\[(.+)\] *\((.+)\)/g;
     const matches = [...content.matchAll(linkRegex)];
 
     if (!matches || matches.length === 0) {
-      return successCallback([]);
+      return callback(null, []);
     }
 
     const links = matches.map(match => {
@@ -78,7 +78,7 @@ function findLinksInFile(fileRoute, successCallback, errorCallback) {
       return { text, url, file: fileRoute };
     });
 
-    successCallback(links);
+    callback(null, links);
   });
 }
 
@@ -150,29 +150,6 @@ function printValidationResult(validatedLinks) {
   }
 }
 
-// findLinksInFile(fileBeingRead, linksFound => {
-//   console.log(chalk.bgWhite.bold("Links found statistics:"));
-//   printStatistics(
-//     calculateStatistics(linksFound, false)
-//   );
-//   validateLinksInMdFile(linksFound)
-//     .then(validatedLinks => {
-//       console.log(chalk.bgWhite.bold('Links validation results:'));
-//       printValidationResult(validatedLinks);
-//       console.log(chalk.bgWhite.bold("Validate statistics:"));
-//       printStatistics(
-//         calculateStatistics(validatedLinks, true)
-//       );
-//     })
-//     .catch(error => {
-//       console.error('Error:', error);
-//     });
-// },
-//   error => {
-//     console.error(chalk.red(error));
-//   });
-
-
 module.exports = {
   isPathValid,
   makePathAbsolute,
@@ -222,19 +199,24 @@ module.exports = {
 //   }
 // });
 
-//   if(fs.access(fileRoute).isDirectory()) {
-//     const files = fs.access(path);
-//     const mdFiles = files.filter(file => path.extname(file) === 'md');
-//     if (mdFiles.length > 0) {
-//       console.log(`Files with extension .md in the path ${fileRoute}:`);
-//       mdFiles.forEach(file => console.log(file));
-//     } else {
-//       console.log(`No files with .md extension were found in the path ${fileRoute}`)
-//     }
-//     return true;
-
-//   } else {
-//     console.log('The path provided is a file, not a directory');
-//   }
-// }
-// console.log(getFiles(fileRoute));
+// findLinksInFile(fileBeingRead, linksFound => {
+//   console.log(chalk.bgWhite.bold("Links found statistics:"));
+//   printStatistics(
+//     calculateStatistics(linksFound, false)
+//   );
+//   validateLinksInMdFile(linksFound)
+//     .then(validatedLinks => {
+//       console.log(chalk.bgWhite.bold('Links validation results:'));
+//       printValidationResult(validatedLinks);
+//       console.log(chalk.bgWhite.bold("Validate statistics:"));
+//       printStatistics(
+//         calculateStatistics(validatedLinks, true)
+//       );
+//     })
+//     .catch(error => {
+//       console.error('Error:', error);
+//     });
+// },
+//   error => {
+//     console.error(chalk.red(error));
+//   });
