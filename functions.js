@@ -47,7 +47,8 @@ function getMdFilesInDirectory(fileRoute, callback) {
     if (error) {
       return callback(new Error(`Error getting the .md files in the directory: ${error.message}`))
     }
-    const mdFiles = files.filter(file => path.extname(file) === '.md');
+    let mdFiles = files.filter(file => path.extname(file) === '.md');
+    mdFiles = mdFiles.map(file => fileRoute + '\\' + file);
     return callback(null, mdFiles);
   });
 }

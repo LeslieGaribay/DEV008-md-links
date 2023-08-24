@@ -66,23 +66,26 @@ function mdLinks(path, options) {
 }
 
 function processFile(filePath) {
-  findLinksInFile(filePath, (error, links) => {
-    if (error) {
-      // TODO: handle errors
-      return;
-    }
-
-    let mdFileValidationPromise = validateLinksInMdFile(links)
-      .then((validatedLinks) => validatedLinks)
-      .catch(() => {
+  return new Promise((resolve, reject) => {
+    findLinksInFile(filePath, (error, links) => {
+      if (error) {
         // TODO: handle errors
-      });
-    return mdFileValidationPromise;
+        reject(error);
+        return;
+      }
+  
+      let mdFileValidationPromise = validateLinksInMdFile(links);
+      resolve(mdFileValidationPromise);
+      return;
+    });
   });
 }
 
 module.exports = () => { mdLinks };
 
+
+const fileRoute = './Example';
+mdLinks(fileRoute, {validate: true});
 // const mdLinks = require("md-links");
 
 // mdLinks("./some/example.md")
