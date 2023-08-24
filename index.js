@@ -5,9 +5,6 @@ const {
   getMdFilesInDirectory,
   findLinksInFile,
   validateLinksInMdFile,
-  calculateStatistics,
-  printStatistics,
-  printValidationResult
 } = require("./functions.js");
 
 function mdLinks(path, options) {
@@ -83,36 +80,4 @@ function processFile(filePath, validate) {
   });
 }
 
-module.exports = () => { mdLinks };
-
-
-const fileRoute = './Example';
-mdLinks(fileRoute, { validate: false })
-  .then(result => {
-    console.log(result);
-  })
-  .catch(error => {
-    console.log(error);
-  });
-// const mdLinks = require("md-links");
-
-// mdLinks("./some/example.md")
-//   .then(links => {
-//     // => [{ href, text, file }, ...]
-//   })
-//   .catch(console.error);
-
-// mdLinks("./some/example.md", { validate: true })
-//   .then(links => {
-//     // => [{ href, text, file, status, ok }, ...]
-//   })
-//   .catch(console.error);
-
-// mdLinks("./some/dir")
-//   .then(links => {
-//     // => [{ href, text, file }, ...]
-//   })
-//   .catch(console.error);
-
-// Crea una promesa
-// El valor de retorno de nuestra librería es una Promesa, no un Array.
+module.exports = { mdLinks };

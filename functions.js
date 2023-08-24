@@ -48,7 +48,7 @@ function getMdFilesInDirectory(fileRoute, callback) {
       return callback(new Error(`Error getting the .md files in the directory: ${error.message}`))
     }
     let mdFiles = files.filter(file => path.extname(file) === '.md');
-    mdFiles = mdFiles.map(file => fileRoute + '\\' + file);
+    mdFiles = mdFiles.map(file => fileRoute + '\\' + file); // TODO: Use path union function
     return callback(null, mdFiles);
   });
 }
@@ -142,11 +142,11 @@ function printValidationResult(validatedLinks) {
   }
   else if (validatedLinks[0].ok === undefined) { // links sin validación
     validatedLinks.forEach(element => {
-      console.log(`${element.file} ${element.url} ${element.text}`);
+      console.log(`${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.yellow(element.text)}`);
     });
   } else {
     validatedLinks.forEach(element => { // links validados
-      console.log(`${chalk.magenta(element.file)} ${element.url} ${chalk.green(element.ok ? "ok" : "fail")} ${chalk.yellow(element.status)} ${chalk.cyan(element.text)}`);
+      console.log(`${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.cyan(element.text)} ${element.ok ? chalk.green("ok " + element.status) : chalk.red("fail " + element.status)}`);
     });
   }
 }
