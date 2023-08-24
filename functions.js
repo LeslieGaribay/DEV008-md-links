@@ -37,7 +37,7 @@ function getRouteType(fileRoute, callback) {
     } else if (stats.isDirectory()) {
       return callback(null, 'directory');
     } else {
-      return callback(null, 'unknown');
+      return callback('Unknown route type');
     }
   });
 }
@@ -62,7 +62,7 @@ function readMdFile(fileRoute, callback) {
 }
 
 function findLinksInFile(fileRoute, callback) {
-  fs.readFile(fileRoute, 'utf-8', (error, content) => {
+  readMdFile(fileRoute, (error, content) => {
     if (error) {
       return callback(`Failed to find links in file ${fileRoute}: ${error.message}`);
     }
