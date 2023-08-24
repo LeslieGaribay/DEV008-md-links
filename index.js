@@ -11,72 +11,74 @@ const {
 } = require("./functions.js");
 
 function mdLinks(path, options) {
-  isPathValid(path, (isValid) => {
-    if (isValid) {
-      path = makePathAbsolute(path);
+  return new Promise((resolve, reject) => {
 
-      getRouteType(path, (error, routeType) => {
-        if (error) {
-          // TODO: handle errors
-          return;
-        }
-    
-        if (routeType == 'file') {
-          processFile(path)
-            .then((validatedLinks) => {
-              let statistics = calculateStatistics(validatedLinks, options.validate)
-              printStatistics(statistics);
-              printValidationResult(validatedLinks);
-            })
-            .catch();
-        } else if ('directory') {
-          getMdFilesInDirectory(path, (error, mdFiles) => {
-            if (error) {
-              // TODO: handle errors
-              return;
-            }
-        
-            let mdFileValidationPromises = []
-            mdFiles.forEach((filePath) => {
-              let processFilePromise = processFile(filePath);
-              mdFileValidationPromises.push(processFilePromise);
-            });
-    
-            Promise.all(mdFileValidationPromises)
-            .then((validatedLinksByFile) => {
-              let validatedLinks = []
-              validatedLinksByFile.forEach(vl => {
-                validatedLinks.push(...vl);
+    isPathValid(path, (isValid) => {
+      if (isValid) {
+        path = makePathAbsolute(path);
+
+        getRouteType(path, (error, routeType) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          if (routeType == 'file') {
+            processFile(path, options.validate)
+              .then((validatedLinks) => {
+                resolve(validatedLinks)
+              })
+              .catch((error) => {
+                reject(error)
               });
-              
-              let statistics = calculateStatistics(validatedLinks, options.validate)
-              printStatistics(statistics);
-              printValidationResult(validatedLinks);
-            })
-            .catch();
-          });
-        }
-      });
-    } else {
-      // TODO: handle errors
-    }
+          } else if ('directory') {
+            getMdFilesInDirectory(path, (error, mdFiles) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+
+              let mdFileValidationPromises = []
+              mdFiles.forEach((filePath) => {
+                let processFilePromise = processFile(filePath, options.validate);
+                mdFileValidationPromises.push(processFilePromise);
+              });
+
+              Promise.all(mdFileValidationPromises)
+                .then((validatedLinksByFile) => {
+                  let validatedLinks = []
+                  validatedLinksByFile.forEach(vl => {
+                    validatedLinks.push(...vl);
+                  });
+                  resolve(validatedLinks)
+                })
+                .catch((error) => {
+                  reject(error)
+                });
+            });
+          }
+        });
+      } else {
+        reject('Invalid path.');
+      }
+    });
   });
-
-
 }
 
-function processFile(filePath) {
+function processFile(filePath, validate) {
   return new Promise((resolve, reject) => {
     findLinksInFile(filePath, (error, links) => {
       if (error) {
-        // TODO: handle errors
         reject(error);
         return;
       }
-  
-      let mdFileValidationPromise = validateLinksInMdFile(links);
-      resolve(mdFileValidationPromise);
-      return;
+
+      if (validate) {
+        let mdFileValidationPromise = validateLinksInMdFile(links);
+        resolve(mdFileValidationPromise);
+      } else {
+        resolve(links);
+      }
     });
   });
 }
@@ -85,7 +87,13 @@ module.exports = () => { mdLinks };
 
 
 const fileRoute = './Example';
-mdLinks(fileRoute, {validate: true});
+mdLinks(fileRoute, { validate: false })
+  .then(result => {
+    console.log(result);
+  })
+  .catch(error => {
+    console.log(error);
+  });
 // const mdLinks = require("md-links");
 
 // mdLinks("./some/example.md")
