@@ -20,7 +20,7 @@ md-links-lg is a library and command-line tool (CLI) that allows you to analyze 
 
 To install this library, enter the following command in your terminal:
 
-`npm install --global <github-user>/md-links`
+`npm i md-links-lgr`
 
 
 ## 3. Functionality and Usage Guide

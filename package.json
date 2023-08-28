@@ -1,5 +1,5 @@
 {
-  "name": "md-links",
+  "name": "md-links-lgr",
   "version": "1.0.0",
   "description": "A CLI used to validate links of an .md file",
   "engines": {
