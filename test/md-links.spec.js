@@ -271,9 +271,8 @@ describe('test for findLinksInFile', () => {
   });
 
   it('should handle files without links', () => {
-    const readMdFile = jest.fn();
     
-    readMdFile.mockImplementation((path, callback) => {
+    jest.spyOn(fs, 'readFile').mockImplementation((path, options, callback) => {
       callback(null, 'Sample content without links');
     });
 
@@ -288,12 +287,12 @@ describe('test for findLinksInFile', () => {
   });
 
   it('should handle errors when reading a file', () => {
-    readMdFile.mockImplementation((path, callback) => {
+    jest.spyOn(fs, 'readFile').mockImplementation((path, options, callback) => {
       callback(new Error('File not found'));
     });
     const mockCallback = jest.fn();
     findLinksInFile('invalidFile', (error, links) => {
-      expect(error).toBe('Failed to find links in file invalidFile: File not found');
+      expect(error).toBe(`Failed to find links in file invalidFile: Error reading file invalidFile: File not found`);
       expect(links).toBeUndefined();
       mockCallback();
     });

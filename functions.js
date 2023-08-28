@@ -5,9 +5,6 @@ const readline = require('readline');
 const fetch = require('node-fetch');
 const chalk = require('chalk');
 
-const fileRoute = './Example';
-const fileBeingRead = './Example/file-1.md';
-
 function isPathValid(path, callback) {
   fs.access(path, (error) => {
     if (error) {
@@ -124,7 +121,6 @@ function calculateStatistics(validatedLinks, validateOption) { //validateOption:
       total,
       unique
     };
-
   }
 }
 
