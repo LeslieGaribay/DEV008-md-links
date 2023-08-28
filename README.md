@@ -13,14 +13,14 @@
 
 ## 1. Project description
 
-md-links-lg is a library and command-line tool (CLI) that allows you to analyze and read one or multiple markdown format files to search for and validate the status of the links they contain, as well as obtain some statistics such as the total number of unique or broken links found.
+md-links-lgr is a library and command-line tool (CLI) that allows you to analyze and read one or multiple markdown format files to search for and validate the status of the links they contain, as well as obtain some statistics such as the total number of unique or broken links found.
 
 
 ## 2. Installation
 
 To install this library, enter the following command in your terminal:
 
-`npm i md-links-lgr`
+`npm install -g md-links-lgr`
 
 
 ## 3. Functionality and Usage Guide
