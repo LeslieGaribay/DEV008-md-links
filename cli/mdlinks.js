@@ -23,7 +23,7 @@ const options = yargs(process.argv.slice(2))
   })
   .option('s', {
     alias: 'stats',
-    describe: 'When selecting this option, statistics about the links are printed',
+    describe: (chalk.yellow('When selecting this option, statistics about the links are printed')),
     type: 'boolean',
     demandOption: false
   })

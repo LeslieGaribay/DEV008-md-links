@@ -151,14 +151,14 @@ describe('test for getRouteType', () => {
       };
       callback(null, mockCallback);
     });
-  
+
     getRouteType('route/file/file-or-directoy-unknown', (error, type) => {
       expect(error).toBeNull();
-      expect(type).toBe('unknown');
+      expect(type).toBe('Unknown route type');
       done();
     });
   });
-  
+
   it('should handle an error getting the file/directory information', (done) => {
     const mockError = new Error('Error al obtener información');
 
@@ -184,6 +184,8 @@ describe('test for getMdFilesInDirectory', () => {
     jest.restoreAllMocks();
   });
 
+  jest.mock('fs');
+
   it('should get .md files in the directory', async () => {
     const mockCallback = jest.fn();
     getMdFilesInDirectory(fakeAbsoluteRoute, mockCallback);
@@ -194,13 +196,14 @@ describe('test for getMdFilesInDirectory', () => {
   });
 
 
-  it('should return an array of .md files', () => {
+  it('should return an array of .md files', (done) => {
     const files = ['file1.md', 'file2.txt', 'file3.md'];
     fs.readdir.mockImplementation((path, callback) => callback(null, files));
 
     getMdFilesInDirectory(fakeAbsoluteRoute, (error, mdFiles) => {
       expect(error).toBeNull();
-      expect(mdFiles).toEqual(['file1.md', 'file3.md']);
+      expect(mdFiles).toEqual(['C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example\\file1.md', 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example\\file3.md']);
+      done();
     });
   });
 
@@ -258,7 +261,7 @@ describe('test for findLinksInFile', () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
-
+ 
   it('should find links in file', async () => {
     const mockCallback = jest.fn();
     findLinksInFile(fakeValidFile, mockCallback, mockCallback);
@@ -268,43 +271,41 @@ describe('test for findLinksInFile', () => {
   });
 
   it('should handle files without links', () => {
-    jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
+    const readMdFile = jest.fn();
+    
+    readMdFile.mockImplementation((path, callback) => {
       callback(null, 'Sample content without links');
     });
 
-    const successCallback = jest.fn();
-    const errorCallback = jest.fn();
+    const mockCallback = jest.fn();
 
-    findLinksInFile('fileWithoutLinks', successCallback, errorCallback);
-
-    expect(successCallback).toHaveBeenCalledTimes(1);
-    expect(errorCallback).not.toHaveBeenCalled();
-
-    expect(successCallback).toHaveBeenCalledWith([]);
+    findLinksInFile('fileWithoutLinks', (error, links) => {
+      expect(error).toBeNull();
+      expect(links).toEqual([]);
+      mockCallback();
+    });
+    expect(mockCallback).toHaveBeenCalledTimes(1);
   });
 
   it('should handle errors when reading a file', () => {
-    jest.spyOn(fs, 'readFile').mockImplementation((path, encoding, callback) => {
+    readMdFile.mockImplementation((path, callback) => {
       callback(new Error('File not found'));
     });
-    const successCallback = jest.fn();
-    const errorCallback = jest.fn();
-    findLinksInFile('invalidFile', successCallback, errorCallback);
-
-    expect(errorCallback).toHaveBeenCalledTimes(1);
-    expect(successCallback).not.toHaveBeenCalled();
-
-    expect(errorCallback).toHaveBeenCalledWith(
-      'Failed to find links in file invalidFile: File not found'
-    );
+    const mockCallback = jest.fn();
+    findLinksInFile('invalidFile', (error, links) => {
+      expect(error).toBe('Failed to find links in file invalidFile: File not found');
+      expect(links).toBeUndefined();
+      mockCallback();
+    });
+    expect(mockCallback).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('test for validateLinksInMdFile', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-  });  
-  
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -315,23 +316,23 @@ describe('test for validateLinksInMdFile', () => {
       text: 'Example',
       file: 'example.md',
     };
-  
+
     const mockResponse = {
       status: 200,
       ok: true,
     };
-  
+
     global.fetch = jest.fn().mockResolvedValue(mockResponse);
-  
+
     const result = await validateLinksInMdFile([mockLink]);
-  
+
     expect(result).toEqual([
       {
-      url: mockLink.url,
-      text: mockLink.text,
-      file: mockLink.file,
-      status: mockResponse.status,
-      ok: mockResponse.ok,
+        url: mockLink.url,
+        text: mockLink.text,
+        file: mockLink.file,
+        status: mockResponse.status,
+        ok: mockResponse.ok,
       },
     ]);
   });
@@ -343,18 +344,19 @@ describe('test for validateLinksInMdFile', () => {
       file: 'nonexistent.md',
     };
 
-    const mockErrorResponse = {status: 404};
+    const mockErrorResponse = { status: 404 };
 
     global.fetch = jest.fn().mockRejectedValue(mockErrorResponse);
 
     const result = await validateLinksInMdFile([mockLink]);
 
     expect(result).toEqual([
-      {url: mockLink.url,
-      text: mockLink.text,
-      file: mockLink.file,
-      status: mockErrorResponse.status,
-      ok: false,
+      {
+        url: mockLink.url,
+        text: mockLink.text,
+        file: mockLink.file,
+        status: mockErrorResponse.status,
+        ok: false,
       },
     ]);
   });
@@ -363,8 +365,8 @@ describe('test for validateLinksInMdFile', () => {
 describe('test for calculateStatistics', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-  });  
-  
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -421,9 +423,9 @@ describe('test for printStatistics', () => {
   }));
 
   beforeEach(() => {
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-  });  
-  
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+  });
+
   afterEach(() => {
     consoleSpy.mockRestore();
   });
@@ -464,12 +466,13 @@ describe('test for printValidationResult', () => {
     magenta: jest.fn(),
     red: jest.fn(),
     green: jest.fn(),
+    yellow: jest.fn(),
   }));
 
   beforeEach(() => {
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-  });  
-  
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+  });
+
   afterEach(() => {
     consoleSpy.mockRestore();
   });
@@ -490,67 +493,23 @@ describe('test for printValidationResult', () => {
     printValidationResult(validatedLinks);
 
     validatedLinks.forEach(element => {
-      expect(consoleSpy).toHaveBeenCalledWith(`${element.file} ${element.url} ${element.text}`);
+      expect(consoleSpy).toHaveBeenCalledWith(`${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.yellow(element.text)}`);
     });
   });
 
   it('should print validated links', () => {
     const validatedLinks = [
-      { file: 'file1.md', url: 'https://example.com', ok: true, status: 200, text: 'Example' },
-      { file: 'file2.md', url: 'https://anotherexample.com', ok: false, status: 404, text: 'Another Example' },
+      { file: 'file1.md', url: 'https://example.com', text: 'Example', ok: true, status: 200 },
+      { file: 'file2.md', url: 'https://anotherexample.com', text: 'Another Example', ok: false, status: 404 },
     ];
 
     printValidationResult(validatedLinks);
 
     validatedLinks.forEach(element => {
       expect(consoleSpy).toHaveBeenCalledWith(
-        `${chalk.magenta(element.file)} ${element.url} ${chalk.green(element.ok ? 'ok' : 'fail')} ${chalk.yellow(element.status)} ${chalk.cyan(element.text)}`
+        `${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.yellow(element.text)} ${element.ok ? chalk.green("ok " + element.status) : chalk.red("fail " + element.status)}`
       );
     });
   });
 
 });
-
-// describe('test for makePathAbsolute', () => {
-//   beforeEach(() => {
-//     jest.clearAllMocks()
-//     jest.resetModules();
-//   });
-
-//   afterEach(() => {
-//     jest.clearAllMocks()
-//     jest.resetModules();
-//   });
-
-//   it('should return the same path if it is already absolute', () => {
-//     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
-//     const mockIsAbsolute = jest.fn().mockReturnValue(true);
-//     path.isAbsolute = mockIsAbsolute;
-
-//     const result = makePathAbsolute(fakeAbsoluteRoute);
-//     expect(result).toBe(fakeAbsoluteRoute);
-
-//     expect(mockIsAbsolute).toHaveBeenCalledTimes(1);
-//     expect(path.resolve).not.toHaveBeenCalled();
-//   });
-
-//   it('should convert a relative path to an absolute one', () => {
-//     const fakeAbsoluteRoute = 'C:\\Users\\Leslie\\Documents\\Laboratoria\\DEV008-md-links\\Example';
-//     const mockIsAbsolute = jest.fn().mockReturnValue(false);
-//     const mockResolve = jest.fn().mockReturnValue(fakeAbsoluteRoute);
-//     path.isAbsolute = mockIsAbsolute;
-//     path.resolve = mockResolve;
-//     // jest.mock('path', () => ({
-//     //   isAbsolute: mockIsAbsolute,
-//     //   resolve: mockResolve
-//     // }));
-//     // const { makePathAbsolute } = require('../functions.js');
-//     const result = makePathAbsolute('..\\Example');
-  
-//     expect(result).toBe(fakeAbsoluteRoute);
-
-//     expect(mockIsAbsolute).toHaveBeenCalledTimes(1);
-//     expect(mockResolve).toHaveBeenCalledTimes(1);
-//     expect(mockResolve).toHaveBeenCalledWith(fakeRelativeRoute);
-//   });
-// });

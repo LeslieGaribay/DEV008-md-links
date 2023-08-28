@@ -37,7 +37,7 @@ function getRouteType(fileRoute, callback) {
     } else if (stats.isDirectory()) {
       return callback(null, 'directory');
     } else {
-      return callback('Unknown route type');
+      return callback(null, 'Unknown route type');
     }
   });
 }
@@ -146,7 +146,7 @@ function printValidationResult(validatedLinks) {
     });
   } else {
     validatedLinks.forEach(element => { // links validados
-      console.log(`${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.cyan(element.text)} ${element.ok ? chalk.green("ok " + element.status) : chalk.red("fail " + element.status)}`);
+      console.log(`${chalk.magenta(element.file)} ${chalk.cyan(element.url)} ${chalk.yellow(element.text)} ${element.ok ? chalk.green("ok " + element.status) : chalk.red("fail " + element.status)}`);
     });
   }
 }
