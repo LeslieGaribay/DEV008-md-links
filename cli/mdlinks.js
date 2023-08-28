@@ -15,6 +15,7 @@ console.log(boxen('Welcome!', { padding: 1, borderStyle: 'round' }));
 
 const options = yargs(process.argv.slice(2))
   .usage('md-links ./path/to/file.md -v -s')
+  .command('$0', chalk.blue('Default command'))
   .option('v', {
     alias: 'validate',
     describe: (chalk.yellow('When selecting this option, the links are validated')),
@@ -27,9 +28,9 @@ const options = yargs(process.argv.slice(2))
     type: 'boolean',
     demandOption: false
   })
+  .demandCommand()
   .help(true)
-  // .demandCommand()
-  .argv;
+    .argv;
 
 mdLinks(options._[0], options)
   .then(links => {
