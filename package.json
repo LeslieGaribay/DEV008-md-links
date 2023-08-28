@@ -1,6 +1,6 @@
 {
   "name": "md-links-lgr",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A CLI used to validate links of an .md file",
   "engines": {
     "node": ">=16.x"
@@ -17,7 +17,7 @@
     "homepage": "https://github.com/LeslieGaribay/DEV008-md-links#readme"
   },
   "bin": {
-    "md-links": "cli/md-links.js"
+    "md-links": "cli/mdlinks.js"
   },
   "bootcamp": {
     "createdAt": "2023-06-28T16:05:09.952Z",
